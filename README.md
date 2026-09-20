@@ -63,7 +63,7 @@ groups:
 - name: ioping_alerts
   rules:
   - alert: HighIOLatency
-    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[5m])) > 0.05
+    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[$__rate_interval])) > 0.05
     for: 2m
     labels:
       severity: warning
@@ -72,7 +72,7 @@ groups:
       description: "95th percentile I/O latency is greater than 50ms for more than 2 minutes. (Current value: {{ $value }}s)"
 
   - alert: CriticalIOLatency
-    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[5m])) > 0.5
+    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[$__rate_interval])) > 0.5
     for: 2m
     labels:
       severity: critical
@@ -134,7 +134,7 @@ groups:
 - name: ioping_alerts
   rules:
   - alert: HighIOLatency
-    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[5m])) > 0.05
+    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[$__rate_interval])) > 0.05
     for: 2m
     labels:
       severity: warning
@@ -143,7 +143,7 @@ groups:
       description: "95th percentile I/O latency is greater than 50ms for more than 2 minutes. (Current value: {{ $value }}s)"
 
   - alert: CriticalIOLatency
-    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[5m])) > 0.5
+    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[$__rate_interval])) > 0.5
     for: 2m
     labels:
       severity: critical
@@ -159,19 +159,19 @@ Since the exporter generates a standard Prometheus histogram, you can use the `h
 ### 95th Percentile Latency (Time Series)
 To see the 95th percentile latency over time, split by read and write:
 ```promql
-histogram_quantile(0.95, sum(rate(ioping_latency_seconds_bucket[5m])) by (le, target, operation))
+histogram_quantile(0.95, sum(rate(ioping_latency_seconds_bucket[$__rate_interval])) by (le, target, operation))
 ```
 
 ### Average Latency (Time Series)
 To calculate the true average latency using the sum and count metrics:
 ```promql
-rate(ioping_latency_seconds_sum[5m]) / rate(ioping_latency_seconds_count[5m])
+rate(ioping_latency_seconds_sum[$__rate_interval]) / rate(ioping_latency_seconds_count[$__rate_interval])
 ```
 
 ### Latency Heatmap (Heatmap Panel)
 Histograms are best visualized as heatmaps. In Grafana, select the **Heatmap** visualization type. To view read latency:
 ```promql
-sum(rate(ioping_latency_seconds_bucket{operation="read"}[5m])) by (le)
+sum(rate(ioping_latency_seconds_bucket{operation="read"}[$__rate_interval])) by (le)
 ```
 *Note: In the Grafana Heatmap settings, make sure to set "Format" to "Heatmap" in the query options, and set Data Format to "Time series buckets".*
 
@@ -180,5 +180,5 @@ sum(rate(ioping_latency_seconds_bucket{operation="read"}[5m])) by (le)
 To see the absolute maximum observed latency (p100 / worst case):
 
 ```promql
-histogram_quantile(1, sum(rate(ioping_latency_seconds_bucket[5m])) by (le, target, operation))
+histogram_quantile(1, sum(rate(ioping_latency_seconds_bucket[$__rate_interval])) by (le, target, operation))
 ```
