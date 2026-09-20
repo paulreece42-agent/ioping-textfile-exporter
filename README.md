@@ -6,6 +6,10 @@ It runs continuous pings with `ioping` and maintains a Prometheus-compatible his
 
 Note: Google Gemini (AI) did most of the heavy lifting on this, I'm also using this as a hobby project to explore agenic workflows. 
 
+Inspired by this excellent Ceph Days talk from the folks at Walmart: https://youtu.be/3CEGRv2xQAk?si=rparJF0R71xIdpYI&t=662
+
+I've also found that these end-to-end, real-world client-measured impacts often differ massively from what different storage systems report in their internal monitoring. Important to measure max (p100) latency, in addition to other metrics
+
 ## Why use this?
 
 When tracking I/O performance, response times typically follow a long-tailed distribution (e.g., log-normal or Pareto). Storage arrays usually return data extremely fast (microseconds) if it hits NVMe caching, but if it has to seek a spinning disk or hits a network block on an NFS share, latency can spike to milliseconds or even seconds.
