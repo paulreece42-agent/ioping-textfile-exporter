@@ -63,7 +63,7 @@ groups:
 - name: ioping_alerts
   rules:
   - alert: HighIOLatency
-    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[$__rate_interval])) > 0.05
+    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[5m])) > 0.05
     for: 2m
     labels:
       severity: warning
@@ -72,7 +72,7 @@ groups:
       description: "95th percentile I/O latency is greater than 50ms for more than 2 minutes. (Current value: {{ $value }}s)"
 
   - alert: CriticalIOLatency
-    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[$__rate_interval])) > 0.5
+    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[5m])) > 0.5
     for: 2m
     labels:
       severity: critical
@@ -134,7 +134,7 @@ groups:
 - name: ioping_alerts
   rules:
   - alert: HighIOLatency
-    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[$__rate_interval])) > 0.05
+    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[5m])) > 0.05
     for: 2m
     labels:
       severity: warning
@@ -143,7 +143,7 @@ groups:
       description: "95th percentile I/O latency is greater than 50ms for more than 2 minutes. (Current value: {{ $value }}s)"
 
   - alert: CriticalIOLatency
-    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[$__rate_interval])) > 0.5
+    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[5m])) > 0.5
     for: 2m
     labels:
       severity: critical
