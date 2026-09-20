@@ -14,8 +14,23 @@ EnvironmentFile=-/etc/default/ioping-exporter@%i
 Environment="INTERVAL=1"
 Environment="WRITE_EVERY=10"
 
-# Critically important: make the PROM_FILE unique per instance using %i 
-# (e.g., ioping--mnt-foo.prom) so they don't overwrite each other!
+# === systemd instance specifiers (%i vs %I) ===
+# %i  = escaped instance name (safe for filenames, EnvironmentFile names, etc.)
+#       Example: for "ioping-exporter@/mnt/foo.service" → %i = "mnt-foo"
+# %I  = unescaped instance name (raw path with slashes, etc.)
+#       Example: for the same unit → %I = "/mnt/foo"
+#
+# Important for compatibility:
+# - Modern systemd (v230 and newer): Both %i and %I are fully supported and recommended.
+#   Use %i for anything that becomes part of a filename or identifier.
+#   Use %I when you need the original unescaped string (e.g., mount paths).
+# - Older systemd versions: The behavior of instance specifiers was less consistent
+#   with special characters. Prefer %I for paths on older systems if you encounter
+#   escaping issues, but test thoroughly. Newer versions strongly favor the documented
+#   %i / %I distinction.
+#
+# Critically important: make the PROM_FILE unique per instance using %i
+# (e.g., ioping-mnt-foo.prom) so they don't overwrite each other!
 Environment="PROM_FILE=/var/lib/prometheus/node-exporter/ioping-%i.prom"
 
 # %I translates to the unescaped path (e.g., /mnt/foo)
