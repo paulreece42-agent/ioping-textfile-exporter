@@ -85,28 +85,6 @@ groups:
       description: "99th percentile I/O latency is greater than 500ms for more than 2 minutes. This indicates severely blocked I/O. (Current value: {{ $value }}s)"
 ```
 
-## Grafana Dashboard Examples
-
-Since the exporter generates a standard Prometheus histogram, you can use the `histogram_quantile` function or Grafana's Heatmap panel to visualize the data. Note that metrics now include an `operation` label (`read` or `write`).
-
-### 95th Percentile Latency (Time Series)
-To see the 95th percentile latency over time, split by read and write:
-```promql
-histogram_quantile(0.95, sum(rate(ioping_latency_seconds_bucket[5m])) by (le, target, operation))
-```
-
-### Average Latency (Time Series)
-To calculate the true average latency using the sum and count metrics:
-```promql
-rate(ioping_latency_seconds_sum[5m]) / rate(ioping_latency_seconds_count[5m])
-```
-
-### Latency Heatmap (Heatmap Panel)
-Histograms are best visualized as heatmaps. In Grafana, select the **Heatmap** visualization type. To view read latency:
-```promql
-sum(rate(ioping_latency_seconds_bucket{operation="read"}[5m])) by (le)
-```
-*Note: In the Grafana Heatmap settings, make sure to set "Format" to "Heatmap" in the query options, and set Data Format to "Time series buckets".*
 
 ## Running as a systemd service
 
@@ -185,19 +163,26 @@ Since the exporter generates a standard Prometheus histogram, you can use the `h
 ### 95th Percentile Latency (Time Series)
 To see the 95th percentile latency over time, split by read and write:
 ```promql
-histogram_quantile(0.95, sum(rate(ioping_latency_seconds_bucket[5m])) by (le, target, operation))
+histogram_quantile(0.95, sum(rate(ioping_latency_seconds_bucket[$__rate_interval])) by (le, target, operation))
 ```
 
 ### Average Latency (Time Series)
 To calculate the true average latency using the sum and count metrics:
 ```promql
-rate(ioping_latency_seconds_sum[5m]) / rate(ioping_latency_seconds_count[5m])
+rate(ioping_latency_seconds_sum[$__rate_interval]) / rate(ioping_latency_seconds_count[$__rate_interval])
 ```
 
 ### Latency Heatmap (Heatmap Panel)
 Histograms are best visualized as heatmaps. In Grafana, select the **Heatmap** visualization type. To view read latency:
 ```promql
-sum(rate(ioping_latency_seconds_bucket{operation="read"}[5m])) by (le)
+sum(rate(ioping_latency_seconds_bucket{operation="read"}[$__rate_interval])) by (le)
 ```
 *Note: In the Grafana Heatmap settings, make sure to set "Format" to "Heatmap" in the query options, and set Data Format to "Time series buckets".*
 
+
+### Max Latency / p100 (Time Series)
+To see the absolute maximum observed latency (p100 / worst case):
+
+```promql
+histogram_quantile(1, sum(rate(ioping_latency_seconds_bucket[$__rate_interval])) by (le, target, operation))
+```
