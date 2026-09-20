@@ -175,3 +175,10 @@ sum(rate(ioping_latency_seconds_bucket{operation="read"}[5m])) by (le)
 ```
 *Note: In the Grafana Heatmap settings, make sure to set "Format" to "Heatmap" in the query options, and set Data Format to "Time series buckets".*
 
+
+### Max Latency / p100 (Time Series)
+To see the absolute maximum observed latency (p100 / worst case):
+
+```promql
+histogram_quantile(1, sum(rate(ioping_latency_seconds_bucket[5m])) by (le, target, operation))
+```
