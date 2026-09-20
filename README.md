@@ -59,33 +59,6 @@ You can customize the exporter behavior using the following environment variable
 - `WRITE_EVERY`: How many pings to wait before flushing to the `.prom` file (default: `10`)
 - `IOPING_BIN`: Path to the `ioping` binary (default: `ioping`)
 
-
-Here are some example Prometheus alerting rules you can add to your configuration to catch storage degradation:
-
-```yaml
-groups:
-- name: ioping_alerts
-  rules:
-  - alert: HighIOLatency
-    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[5m])) > 0.05
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High I/O latency on {{ $labels.instance }}"
-      description: "95th percentile I/O latency is greater than 50ms for more than 2 minutes. (Current value: {{ $value }}s)"
-
-  - alert: CriticalIOLatency
-    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[5m])) > 0.5
-    for: 2m
-    labels:
-      severity: critical
-    annotations:
-      summary: "Critical I/O latency on {{ $labels.instance }}"
-      description: "99th percentile I/O latency is greater than 500ms for more than 2 minutes. This indicates severely blocked I/O. (Current value: {{ $value }}s)"
-```
-
-
 ## Running as a systemd service
 
 To run this continuously as a background daemon, you can use either the non-instanced or instanced systemd unit files.
@@ -172,6 +145,13 @@ To calculate the true average latency using the sum and count metrics:
 rate(ioping_latency_seconds_sum[$__rate_interval]) / rate(ioping_latency_seconds_count[$__rate_interval])
 ```
 
+### Max Latency / p100 (Time Series)
+To see the absolute maximum observed latency (p100 / worst case):
+
+```promql
+histogram_quantile(1, sum(rate(ioping_latency_seconds_bucket[$__rate_interval])) by (le, target, operation))
+```
+
 ### Latency Heatmap (Heatmap Panel)
 Histograms are best visualized as heatmaps. In Grafana, select the **Heatmap** visualization type. To view read latency:
 ```promql
@@ -179,10 +159,3 @@ sum(rate(ioping_latency_seconds_bucket{operation="read"}[$__rate_interval])) by 
 ```
 *Note: In the Grafana Heatmap settings, make sure to set "Format" to "Heatmap" in the query options, and set Data Format to "Time series buckets".*
 
-
-### Max Latency / p100 (Time Series)
-To see the absolute maximum observed latency (p100 / worst case):
-
-```promql
-histogram_quantile(1, sum(rate(ioping_latency_seconds_bucket[$__rate_interval])) by (le, target, operation))
-```
