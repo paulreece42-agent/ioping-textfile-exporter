@@ -18,6 +18,7 @@ Environment="WRITE_EVERY=10"
 # %i  = escaped instance name (safe for filenames, EnvironmentFile names, etc.)
 #       Example: for "ioping-exporter@/mnt/foo.service" → %i = "mnt-foo"
 # %I  = unescaped instance name (raw path with slashes, etc.)
+# %f  = unescaped instance name with leading "/" stripped (useful on some older systemd versions for path construction)
 #       Example: for the same unit → %I = "/mnt/foo"
 #
 # Important for compatibility:
