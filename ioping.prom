@@ -1,0 +1,43 @@
+# HELP ioping_latency_seconds Histogram of ioping latency
+# TYPE ioping_latency_seconds histogram
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.0001"} 0
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.00025"} 0
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.0005"} 0
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.001"} 0
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.0025"} 0
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.005"} 20
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.01"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.025"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.05"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.1"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.25"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="0.5"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="1"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="2.5"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="5"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="10"} 70
+ioping_latency_seconds_bucket{target=".",operation="write",le="+Inf"} 70
+ioping_latency_seconds_sum{target=".",operation="write"} 0.394610
+ioping_latency_seconds_count{target=".",operation="write"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.0001"} 25
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.00025"} 29
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.0005"} 36
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.001"} 67
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.0025"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.005"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.01"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.025"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.05"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.1"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.25"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="0.5"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="1"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="2.5"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="5"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="10"} 70
+ioping_latency_seconds_bucket{target=".",operation="read",le="+Inf"} 70
+ioping_latency_seconds_sum{target=".",operation="read"} 0.032196
+ioping_latency_seconds_count{target=".",operation="read"} 70
+# HELP ioping_last_update_seconds Unix timestamp of the last successful metric write
+# TYPE ioping_last_update_seconds gauge
+ioping_last_update_seconds{target="."} 1789822442

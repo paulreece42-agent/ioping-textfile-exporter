@@ -1,0 +1,28 @@
+[Unit]
+Description=ioping Prometheus Textfile Exporter for %I
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+
+# Allow overriding variables per-instance using an environment file (optional)
+EnvironmentFile=-/etc/default/ioping-exporter@%i
+
+# Default environment variables
+Environment="INTERVAL=1"
+Environment="WRITE_EVERY=10"
+
+# Critically important: make the PROM_FILE unique per instance using %i 
+# (e.g., ioping--mnt-foo.prom) so they don't overwrite each other!
+Environment="PROM_FILE=/var/lib/prometheus/node-exporter/ioping-%i.prom"
+
+# %I translates to the unescaped path (e.g., /mnt/foo)
+ExecStart=/usr/local/bin/ioping-exporter.sh %I
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

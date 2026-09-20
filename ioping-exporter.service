@@ -1,0 +1,22 @@
+[Unit]
+Description=ioping Prometheus Textfile Exporter
+After=network.target
+
+[Service]
+Type=simple
+User=prometheus
+Group=prometheus
+# Set variables based on your setup. You can also load these from an EnvironmentFile.
+Environment="INTERVAL=1"
+Environment="WRITE_EVERY=10"
+Environment="PROM_FILE=/var/lib/prometheus/node-exporter/ioping.prom"
+
+# Path to the bash script we created, and the target directory to run ioping against
+ExecStart=/usr/local/bin/ioping-exporter.sh /mnt/target_directory
+
+# Automatically restart if it fails or gets killed
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
