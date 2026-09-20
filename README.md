@@ -55,26 +55,97 @@ You can customize the exporter behavior using the following environment variable
 - `WRITE_EVERY`: How many pings to wait before flushing to the `.prom` file (default: `10`)
 - `IOPING_BIN`: Path to the `ioping` binary (default: `ioping`)
 
+
+Here are some example Prometheus alerting rules you can add to your configuration to catch storage degradation:
+
+```yaml
+groups:
+- name: ioping_alerts
+  rules:
+  - alert: HighIOLatency
+    expr: histogram_quantile(0.95, rate(ioping_latency_seconds_bucket[5m])) > 0.05
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High I/O latency on {{ $labels.instance }}"
+      description: "95th percentile I/O latency is greater than 50ms for more than 2 minutes. (Current value: {{ $value }}s)"
+
+  - alert: CriticalIOLatency
+    expr: histogram_quantile(0.99, rate(ioping_latency_seconds_bucket[5m])) > 0.5
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical I/O latency on {{ $labels.instance }}"
+      description: "99th percentile I/O latency is greater than 500ms for more than 2 minutes. This indicates severely blocked I/O. (Current value: {{ $value }}s)"
+```
+
+## Grafana Dashboard Examples
+
+Since the exporter generates a standard Prometheus histogram, you can use the `histogram_quantile` function or Grafana's Heatmap panel to visualize the data. Note that metrics now include an `operation` label (`read` or `write`).
+
+### 95th Percentile Latency (Time Series)
+To see the 95th percentile latency over time, split by read and write:
+```promql
+histogram_quantile(0.95, sum(rate(ioping_latency_seconds_bucket[5m])) by (le, target, operation))
+```
+
+### Average Latency (Time Series)
+To calculate the true average latency using the sum and count metrics:
+```promql
+rate(ioping_latency_seconds_sum[5m]) / rate(ioping_latency_seconds_count[5m])
+```
+
+### Latency Heatmap (Heatmap Panel)
+Histograms are best visualized as heatmaps. In Grafana, select the **Heatmap** visualization type. To view read latency:
+```promql
+sum(rate(ioping_latency_seconds_bucket{operation="read"}[5m])) by (le)
+```
+*Note: In the Grafana Heatmap settings, make sure to set "Format" to "Heatmap" in the query options, and set Data Format to "Time series buckets".*
+
 ## Running as a systemd service
 
-To run this continuously as a background daemon, you can use a systemd unit file (e.g., `ioping-exporter.service`).
+To run this continuously as a background daemon, you can use either the non-instanced or instanced systemd unit files.
+
+### Non-instanced (single target)
 
 1. Create a dedicated directory for textfile metrics if you don't have one:
 ```bash
 sudo mkdir -p /var/lib/prometheus/node-exporter
 ```
 
-2. Copy your unit file to systemd:
+2. Copy the unit file:
 ```bash
 sudo cp ioping-exporter.service /etc/systemd/system/
 ```
 
-3. Enable and start the service:
+3. Enable and start:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now ioping-exporter.service
 sudo systemctl status ioping-exporter.service
 ```
+
+### Instanced version (multiple targets, e.g. different mount points)
+
+The `ioping-exporter@.service` template lets you run separate instances for different directories.
+
+**Important:** Use `systemd-escape` to safely encode paths as instance names.
+
+Example for `/mnt/my-mount`:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now "ioping-exporter@$(systemd-escape /mnt/my-mount).service"
+sudo systemctl status "ioping-exporter@$(systemd-escape /mnt/my-mount)"
+```
+
+You can also check logs with:
+```bash
+journalctl -u "ioping-exporter@$(systemd-escape /mnt/my-mount)"
+```
+
+The instanced unit automatically uses `%I` for the path and `%i` for unique `.prom` filenames so multiple instances don't conflict.
 
 ## Alertmanager Examples
 
